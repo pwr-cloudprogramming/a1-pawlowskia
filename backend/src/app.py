@@ -118,8 +118,8 @@ def make_move():
         return jsonify({'message': 'It\'s a draw!'})
 
     # Send message to other player
-    other_player = 'player1' if games_pool[game_id]['player1'] != player_name else 'player2'
-    send({'row': row, 'col': col}, room=games_pool[game_id][other_player])
+    # other_player = 'player1' if games_pool[game_id]['player1'] != player_name else 'player2'
+    # send({'row': row, 'col': col}, room=games_pool[game_id][other_player])
 
     return jsonify({'message': 'Move made', 'current_player': game_state['current_player']})
 
@@ -132,15 +132,15 @@ def get_game_state(game_id):
     return jsonify(game_state)
 
 # WebSocket event handler for new connections
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected')
+# @socketio.on('connect')
+# def handle_connect():
+#     print('Client connected')
 
-# WebSocket event handler for disconnects
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Client disconnected')
+# # # WebSocket event handler for disconnects
+# @socketio.on('disconnect')
+# def handle_disconnect():
+#     print('Client disconnected')
 
 if __name__ == '__main__':
     app.debug = True
-    socketio.run(app, port=8081)
+    socketio.run(app, port=8081, allow_unsafe_werkzeug=True)
