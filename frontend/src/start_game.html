@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Your Name</title>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <form id="joinForm">
+        <label for="playerName">Enter your name:</label><br>
+        <input type="text" id="playerName" name="playerName"><br><br>
+        <input type="submit" value="Start Game">
+    </form>
+
+    <script>
+        document.getElementById('joinForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get player name from the input field
+            var playerName = document.getElementById('playerName').value;
+
+            // Create a JSON object with player_name field
+            var data = {
+                player_name: playerName
+            };
+
+            // Send a POST request to the backend to join the game
+            fetch('http://127.0.0.1:8081/join_game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Set the content type to JSON
+                },
+                body: JSON.stringify(data) // Convert data object to JSON string
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Redirect to the play_game.html page with the game ID as a query parameter
+                window.location.href = `play_game.html?game_id=${data.game_id}&player_name=${playerName}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

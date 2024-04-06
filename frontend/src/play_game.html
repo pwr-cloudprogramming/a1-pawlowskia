@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Tic-Tac-Toe</title>
+    <style>
+        /* Add CSS styles here */
+        #gameBoard button {
+            width: 100px; /* Adjust button width */
+            height: 100px; /* Adjust button height */
+            font-size: 24px; /* Adjust font size */
+            margin: 5px; /* Add some margin between buttons */
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div id="gameBoard"></div>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script> -->
+
+    <script>
+        // var socket = io('http://127.0.0.1:8081'); // Connect to the SocketIO server
+
+        var currentPlayer = 'X'; // Initialize current player
+        var gameState = {
+            board: [['', '', ''], ['', '', ''], ['', '', '']],
+            game_over: false
+        };
+
+        function getUrlParameter(name) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(window.location.href);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Function to handle player moves
+        function makeMove(row, col) {
+            console.log('Making move at row:', row, 'col:', col)
+            console.log(gameState)
+            if (!gameState.game_over) {
+                // Make a move on the backend
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://127.0.0.1:8081/make_move', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            // Move was successful
+                            // Retrieve the updated game state
+                            console.log('Move made successfully')
+                            getGameState();
+                        } else {
+                            // Move failed
+                            console.error('Error making move:', xhr.responseText);
+                        }
+                    }
+                };
+                // console.log('AAA' + getUrlParameter('game_id'))
+                xhr.send(JSON.stringify({
+                    game_id: getUrlParameter('game_id'),
+                    player_name: getUrlParameter('player_name'),
+                    row: row,
+                    col: col
+                }));
+                console.log('Move made at row:', row, 'col:', col)
+            }
+        }
+
+        // Function to retrieve the current game state from the backend
+        function getGameState() {
+            var xhr = new XMLHttpRequest();
+            var game_id = getUrlParameter('game_id');
+            xhr.open('GET', 'http://127.0.0.1:8081/get_game_state/' + game_id, true); // Replace 1 with the actual game ID
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Game state retrieved successfully
+                        gameState = JSON.parse(xhr.responseText);
+                        updateGameBoard();
+                    } else {
+                        // Error retrieving game state
+                        console.error('Error getting game state:', xhr.responseText);
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Function to update the game board UI with the current game state
+        function updateGameBoard() {
+            var gameBoardDiv = document.getElementById('gameBoard');
+            gameBoardDiv.innerHTML = ''; // Clear the game board before updating
+
+            // Loop through the game board array and create HTML elements to represent the board
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    var cell = document.createElement('button');
+                    cell.textContent = gameState.board[i][j];
+                    cell.onclick = function() {
+                        // Handle click event for the cell
+                        // Extract row and column from the cell id
+                        var idParts = this.id.split('-');
+                        var row = parseInt(idParts[0]);
+                        var col = parseInt(idParts[1]);
+                        makeMove(row, col); // Make a move when the cell is clicked
+                    };
+                    cell.id = i + '-' + j; // Set id to identify the cell
+                    gameBoardDiv.appendChild(cell); // Append the cell to the game board
+                }
+                gameBoardDiv.appendChild(document.createElement('br')); // Add a line break after each row
+            }
+        }
+
+        // Call the updateGameBoard function when the page loads
+        window.onload = function() {
+            updateGameBoard();
+            getGameState(); // Retrieve initial game state
+            setInterval(getGameState, 1000);
+        };
+
+        // socket.on('move_made', function(data) {
+        //     console.log('Received move_made event:', data);
+        //     getGameState(); // Update the game board
+        // });
+    </script>
+</body>
+</html>
