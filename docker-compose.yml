@@ -1,15 +1,16 @@
-version: '3'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "8081:8081"
-    volumes:
-      - ./backend/src:/usr/src/app
+version: '3.8'
 
+services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"
-    volumes:
-      - ./frontend/src:/usr/src/app
+      - "8080:80"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"

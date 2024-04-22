@@ -1,17 +1,6 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11
-
-# Set the working directory in the container
-WORKDIR /
-
-# Copy the current directory contents into the container at /usr/src/app
+FROM node:21
+WORKDIR /app
 COPY . .
-
-# Install any needed packages specified in requirements.txt
-RUN pip install Flask flask_socketio flask_cors
-
-# Make port 8081 available to the world outside this container
-EXPOSE 8081
-
-# Run app.py when the container launches
-CMD ["python", "/src/app.py"]
+RUN npm install
+EXPOSE 3000
+CMD ["node", "index.js"]
