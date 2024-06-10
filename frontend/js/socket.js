@@ -1,8 +1,4 @@
-require('dotenv').config();
-
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "ws://localhost:3000";
-const socket = io(backendUrl);
-
+//
 const token = {
     1: "cross",
     2: "circle"
